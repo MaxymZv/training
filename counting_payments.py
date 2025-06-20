@@ -61,11 +61,7 @@ def input_error(func):
     return inner
     
 
-
-
-
 payments = ('payments.json')
-
 
 
 def parse_input(user_input):
@@ -161,8 +157,6 @@ def delete_data(filename='payments.pickle'):
         return "File not found, nothing to delete."
 
     
-
-
 def main():
     load_data()
     acc = Accumulator()
