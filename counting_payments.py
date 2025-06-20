@@ -43,9 +43,26 @@ class Accumulator:
         return 'Accumulator reset to zero.'
 
 
-class PrettyView:
-    pass
-
+# class PrettyView:
+#     def __init__(self, data):
+#         self.data = data
+    
+#     def display(self):
+#         if not self.data:
+#             return "No data available."
+#         output = []
+#         for key, value in self.data.items():
+#             output.append(f"{key}: {value}")
+#         return "\n".join(output)
+    
+#     def pretty_view(self, data):
+#         pattern = '|{:^10}|{:^10}'
+#         print(pattern.format('data', 'amount'))
+#         for el in data:
+#             currency, *_ = el.keys()
+#             data = el.get(currency).get('data')
+#             amount = el.get(currency).get('amount')
+#         return(pattern.format('data', 'amount'))
 
 def input_error(func):
     @wraps(func)
@@ -70,6 +87,30 @@ def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.lower().strip()
     return cmd, args
+
+class TimeMarker:
+    def __init__(self):
+        self.start_time = datetime.datetime.now()
+    
+    def elapsed_time(self):
+        return datetime.datetime.now() - self.start_time
+    
+    def reset(self):
+        self.start_time = datetime.datetime.now()
+        return 'Timer reset to current time.'
+
+
+def from_pkl_to_json(pickle_file, json_file):
+    try:
+        with open(pickle_file, 'rb') as f:
+            data = pickle.load(f)
+    except FileNotFoundError:
+        return "Pickle file not found."
+    
+    with open(json_file, 'w') as f:
+        json.dump(data, f, indent=4)
+    
+    return f"Data from {pickle_file} has been converted to {json_file}."
 
 
 #this was a first version of this function
@@ -160,6 +201,7 @@ def delete_data(filename='payments.pickle'):
 def main():
     load_data()
     acc = Accumulator()
+    timer = TimeMarker()
     print("Welcome to the Payment Tracker!")
     while True:
         user_input = input("Enter command (for all cmd type help): ")
@@ -214,10 +256,19 @@ def main():
         elif cmd == 'reset':
             acc.reset()
             print("Accumulator reset to zero.")
+        elif cmd == 'trsfm':
+            from_pkl_to_json('payments.pickle', 'payments.json')
+        elif cmd == 'timer':
+            print(f'Timer strated {timer.start_time}')
+        elif cmd == 'elapsed':
+            print(f'Elapsed time: {timer.elapsed_time()}')
+        elif cmd == 'reset-timer':
+            print(timer.reset())
         elif cmd == 'help':
             print('Available commands:\nadd - adding amount from accumulator of received money via letter\nadd-chat <minutes> - adding amount of received money via chat\n' \
             'view - view all payments\nexit - exit the program\ndel - delete all payment data\nhistory - view payment history\nadd-acc adding acc counting\n' \
             'reset - reset accumulator to zero\ntotal - view total amount received\nhelp - show this help message'
+            '\ntrsfm - transform payments from pickle to json\nreset-timer - reset timer to current time\ntimer - start timer\nelapsed - show elapsed time since timer started'
             )
         else:
             print("Unknown command. Type 'help' for available commands.")
